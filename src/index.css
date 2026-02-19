@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 210 40% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 10%;
+
+    /* QuickLab Blue */
+    --primary: 215 90% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    /* QuickLab Green */
+    --secondary: 145 80% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 15% 45%;
+
+    --accent: 215 30% 96%;
+    --accent-foreground: 215 90% 30%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 215 90% 35%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - Deep Blue/Slate */
+    --sidebar-background: 215 45% 10%;
+    --sidebar-foreground: 210 20% 90%;
+    --sidebar-primary: 145 80% 35%; /* Green Highlight in Sidebar */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 40% 16%;
+    --sidebar-accent-foreground: 210 20% 90%;
+    --sidebar-border: 215 30% 18%;
+    --sidebar-ring: 145 80% 35%;
+
+    --success: 145 80% 35%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 215 90% 50%;
+    --info-foreground: 0 0% 100%;
+
+    /* Attractive Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(215, 90%, 35%) 0%, hsl(145, 80%, 35%) 100%);
+    --gradient-card: linear-gradient(135deg, hsla(215, 90%, 96%, 0.8), hsla(145, 80%, 96%, 0.6));
+    --gradient-sidebar: linear-gradient(180deg, hsl(215, 45%, 10%) 0%, hsl(215, 50%, 6%) 100%);
+
+    --glass-bg: hsla(0, 0%, 100%, 0.85);
+    --glass-border: hsla(0, 0%, 100%, 0.5);
+    --glass-shadow: 0 8px 32px hsla(200, 80%, 40%, 0.08);
+
+    --shadow-sm: 0 1px 3px hsla(210, 40%, 10%, 0.06);
+    --shadow-md: 0 4px 16px hsla(210, 40%, 10%, 0.08);
+    --shadow-lg: 0 8px 32px hsla(210, 40%, 10%, 0.1);
+    --shadow-glow: 0 0 20px hsla(200, 80%, 40%, 0.15);
+  }
+
+  .dark {
+    --background: 210 40% 6%;
+    --foreground: 210 20% 95%;
+    --card: 210 35% 10%;
+    --card-foreground: 210 20% 95%;
+    --popover: 210 35% 10%;
+    --popover-foreground: 210 20% 95%;
+    --primary: 200 80% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 175 50% 45%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 30% 15%;
+    --muted-foreground: 210 15% 55%;
+    --accent: 200 40% 18%;
+    --accent-foreground: 200 60% 70%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 30% 18%;
+    --input: 210 30% 18%;
+    --ring: 200 80% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(12px);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
+  .shadow-card {
+    box-shadow: var(--shadow-md);
+  }
+
+  .shadow-card-hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+  }
+
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s ease-out;
+  }
+
+  .btn-glow:hover {
+    box-shadow: 0 0 24px hsla(200, 80%, 40%, 0.3);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
+  }
+
+  .success-tick {
+    animation: tickBounce 0.5s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes tickBounce {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

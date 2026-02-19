@@ -1,0 +1,149 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // "admin" | "sales"
+  phone     String?
+  region    String?
+  active    Boolean  @default(true)
+  userIndex Int?     @unique // Sequential index for ID generation (e.g., 1, 2, 3)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  requests  DemoRequest[] // Relational field for requests created by this user
+}
+
+model Distributor {
+  id            String        @id @default(uuid())
+  name          String
+  location      String
+  contactPerson String
+  phone         String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  
+  requests      DemoRequest[]
+}
+
+model Machine {
+  id            String          @id @default(uuid())
+  name          String
+  category      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  models        MachineModel[]
+  requests      DemoRequest[]
+  kitParameters KitParameter[]
+}
+
+model MachineModel {
+  id        String   @id @default(uuid())
+  name      String
+  machineId String
+  machine   Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+}
+
+model KitParameter {
+  id        String   @id @default(uuid())
+  name      String
+  machineId String
+  machine   Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
+}
+
+model DemoType {
+  id    String @id @default(uuid())
+  name  String @unique
+}
+
+model DemoRequest {
+  id                  String   @id @default(uuid())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  status              String   @default("pending") // pending, approved, dispatched, returned, completed
+  readableId          String?  @unique // 6-digit ID e.g. "100001"
+
+  // Foreign Keys
+  salespersonId       String
+  salesperson         User     @relation(fields: [salespersonId], references: [id], onDelete: Cascade)
+  
+  distributorId       String
+  distributor         Distributor @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+  
+  machineId           String
+  machine             Machine     @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  // Request Details
+  model               String
+  demoType            String
+  proposedDate        String   // Storing as string YYYY-MM-DD for simplicity based on frontend
+  expectedDuration    String
+  
+  // Demo Requirements
+  applicationParams   String   // JSON stringified array of strings or comma-separated
+  sampleVolume        String
+  specialRequirements String?
+  
+  // New Feature: Kit Quantity
+  kitItems            String   // JSON stringified array: [{ kitId, kitName, quantity, unit }]
+  
+  // Doctor Details
+  doctorName          String?
+  doctorDepartment    String?
+  hospitalName        String?  // New field
+  location            String?  // New field
+  
+  // Commercial & Approval
+  businessPotential   String
+  competitorDetails   String?
+  reasonForDemo       String
+  urgencyLevel        String
+  
+  // Approvals
+  regionalManagerApproval Boolean  @default(false)
+  regionalManagerName     String?
+  approvalDate            String?
+  
+  // New Feature: Expected Purchase Date (Sales)
+  expectedPurchaseDate    String? // Changed to String for simplicity in prototype, or keep DateTime if properly handled
+  
+  // Logistics (Admin Only)
+  expectedReturnDate  String?
+  
+  // New Feature: Machine Serial Number (Admin)
+  machineSerialNumber String?
+  
+  dispatchedBy        String?
+  dispatchDate        String?
+  courierDetails      String?
+  trackingNumber      String?
+  receivedDate        String?  // New Feature: Date when sales received the kit
+  conditionOnReturn   String?
+  
+  remarks             String?
+
+  logs                ActivityLog[]
+}
+
+model ActivityLog {
+  id          String      @id @default(uuid())
+  requestId   String
+  request     DemoRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  action      String      // e.g. "STATUS_CHANGE", "UPDATE", "CREATE"
+  details     String?
+  performedBy String      // User ID or Name
+  timestamp   DateTime    @default(now())
+}

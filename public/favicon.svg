@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1d4ed8" /> <!-- Royal Blue -->
+      <stop offset="1" stop-color="#16a34a" /> <!-- Vibrant Green -->
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="64" height="64" rx="16" fill="url(#brandGrad)" />
+  <!-- Activity / Pulse Icon -->
+  <path d="M14 32h10l6-18 8 36 6-18h10" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
