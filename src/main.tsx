@@ -31,8 +31,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     }
 }
 
-createRoot(document.getElementById("root")!).render(
-    <ErrorBoundary>
-        <App />
-    </ErrorBoundary>
-);
+try {
+    createRoot(document.getElementById("root")!).render(
+        <ErrorBoundary>
+            <App />
+        </ErrorBoundary>
+    );
+} catch (bootError) {
+    console.error("Critical boot failure:", bootError);
+    document.body.innerHTML = `<div style="padding: 20px; color: red;"><h1>Critical Boot Error</h1><pre>${bootError}</pre></div>`;
+}
