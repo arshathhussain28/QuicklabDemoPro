@@ -5,59 +5,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <!-- TODO: Set the document title to the name of your application -->
   <title>QuickLab Demo Pro</title>
   <meta name="description" content="Enterprise Demo Request Management for Medical Instruments">
-  <meta name="author" content="QuickLab" />
-
-
-
-  <meta property="og:type" content="website" />
-  <meta property="og:image"
-    content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03231e98-161e-4c32-92fb-2b9dcbe84f74/id-preview-bf36352a--0d770dad-ecb0-4c33-8747-1ea403fc3a50.lovable.app-1771152559101.png">
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@Lovable" />
-  <meta name="twitter:image"
-    content="https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/03231e98-161e-4c32-92fb-2b9dcbe84f74/id-preview-bf36352a--0d770dad-ecb0-4c33-8747-1ea403fc3a50.lovable.app-1771152559101.png">
-  <meta property="og:title" content="QuickLab Demo Pro">
-  <meta name="twitter:title" content="QuickLab Demo Pro">
-  <meta property="og:description" content="Enterprise Demo Request Management for Medical Instruments">
-  <meta name="twitter:description" content="Enterprise Demo Request Management for Medical Instruments">
 </head>
 
 <body>
-  <div id="root">
-    <div style="padding: 20px; text-align: center; color: #666; font-family: sans-serif;">
-      Loading QuickLab Demo Pro...
-    </div>
-  </div>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
-
-  <!-- Diagnostic Script -->
-  <script>
-    window.onerror = function (msg, url, line, col, error) {
-      var root = document.getElementById('root');
-      if (root) {
-        root.innerHTML = '<div style="padding: 20px; color: red; font-family: monospace;">' +
-          '<h1>JavaScript Error</h1>' +
-          '<p>' + msg + '</p>' +
-          '<p>URL: ' + url + ' (Line: ' + line + ')</p>' +
-          '</div>';
-      }
-      return false;
-    };
-
-    // Check if app mounts within 5 seconds
-    setTimeout(function () {
-      var root = document.getElementById('root');
-      if (root && root.innerText.indexOf('Loading') !== -1) {
-        console.warn('App failed to mount in 5 seconds. This might be a loading error.');
-        // Don't replace yet, just log for debugging
-      }
-    }, 5000);
-  </script>
-
+  <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
