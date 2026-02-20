@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "./", // <-- critical for Vercel static hosting
+  base: "/", // Standard for most hosts (Vercel, Netlify)
   server: {
     host: "::",
     port: 5173,
