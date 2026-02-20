@@ -69,7 +69,7 @@ const AdminSalespersons: React.FC = () => {
 
       <div className="grid gap-4">
         {data.salespersons.map((sp, i) => (
-          <div key={sp.id} className="glass-card rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up transition-all duration-300 hover:shadow-md" style={{ animationDelay: `${i * 50}ms` }}>
+          <div key={sp.id} className={`glass-card rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-slide-up transition-all duration-300 hover:shadow-md ${!sp.active ? 'opacity-60 bg-slate-50 border-slate-200 grayscale-[0.8]' : ''}`} style={{ animationDelay: `${i * 50}ms` }}>
             <div className="flex items-center gap-3 md:gap-4 w-full md:w-auto">
               <div className="w-10 h-10 min-w-[2.5rem] rounded-full gradient-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm">
                 {sp.name.split(' ').map((n: string) => n[0]).join('')}

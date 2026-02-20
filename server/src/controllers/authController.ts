@@ -58,13 +58,10 @@ export const createUser = async (req: Request, res: Response) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Auto-increment userIndex logic
-        let nextIndex = 0;
-        if (role !== 'admin') {
-            const maxIndex = await prisma.user.aggregate({
-                _max: { userIndex: true }
-            });
-            nextIndex = (maxIndex._max.userIndex || 0) + 1;
-        }
+        const maxIndex = await prisma.user.aggregate({
+            _max: { userIndex: true }
+        });
+        const nextIndex = (maxIndex._max.userIndex || 0) + 1;
 
         const user = await prisma.user.create({
             data: { email, password: hashedPassword, name, role, region, phone, active: active !== undefined ? active : true, userIndex: nextIndex }

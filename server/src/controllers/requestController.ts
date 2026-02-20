@@ -32,13 +32,21 @@ export const createRequest = async (req: Request, res: Response) => {
         const salesUser = await prisma.user.findUnique({ where: { id: salespersonId } });
         const userIndex = salesUser?.userIndex || 0; // Should be set by authController/seed
 
-        // Count requests by THIS salesperson to determine next sequence
-        const userRequestCount = await prisma.demoRequest.count({
-            where: { salespersonId }
+        // Find the last created request by this user to determine sequence
+        const lastRequest = await prisma.demoRequest.findFirst({
+            where: { salespersonId, readableId: { not: null } },
+            orderBy: { readableId: 'desc' }
         });
 
-        // Sequence starts at 1
-        const nextSequence = userRequestCount + 1;
+        let nextSequence = 1;
+        if (lastRequest && lastRequest.readableId) {
+            // Extract the last 5 digits as the sequence
+            const seqStr = lastRequest.readableId.slice(-5);
+            const lastSeq = parseInt(seqStr, 10);
+            if (!isNaN(lastSeq)) {
+                nextSequence = lastSeq + 1;
+            }
+        }
 
         // Format: {UserIndex}{0000X} -> e.g. 100005
         const readableId = `${userIndex}${nextSequence.toString().padStart(5, '0')}`;

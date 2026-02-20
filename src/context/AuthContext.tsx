@@ -29,6 +29,7 @@ const MOCK_USERS: (User & { password: string })[] = [
   { id: '1', name: 'Rahul Sharma', email: 'rahul@quicklab.com', role: 'sales', password: 'sales123' },
   { id: '2', name: 'Priya Patel', email: 'priya@quicklab.com', role: 'sales', password: 'sales123' },
   { id: '3', name: 'Amit Kumar', email: 'amit@quicklab.com', role: 'sales', password: 'sales123' },
+  { id: '4', name: 'Arshath', email: 'arshath@quicklab.com', role: 'sales', password: 'arshath123' },
 ];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -61,6 +61,7 @@ model KitParameter {
   id        String   @id @default(uuid())
   name      String
   machineId String
+  category  String?
   machine   Machine  @relation(fields: [machineId], references: [id], onDelete: Cascade)
 }
 

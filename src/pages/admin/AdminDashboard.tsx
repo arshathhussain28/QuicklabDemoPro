@@ -21,7 +21,7 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard
           title="Salespersons"
-          value={data.salespersons.length}
+          value={data.salespersons.filter(s => s.active).length}
           icon={Users}
           subtitle="Active team members"
           onClick={() => navigate('/admin/salespersons')}

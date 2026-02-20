@@ -4,7 +4,7 @@ import prisma from '../prisma';
 export const getAllData = async (req: Request, res: Response) => {
     try {
         const [salespersons, distributors, machines, demoTypes, kitParameters] = await Promise.all([
-            prisma.user.findMany({ where: { role: 'sales', active: true }, select: { id: true, name: true, email: true, phone: true, region: true, active: true } }),
+            prisma.user.findMany({ where: { role: 'sales' }, select: { id: true, name: true, email: true, phone: true, region: true, active: true } }),
             prisma.distributor.findMany(),
             prisma.machine.findMany({ include: { models: true } }),
             prisma.demoType.findMany().then(types => types.map(t => t.name)),

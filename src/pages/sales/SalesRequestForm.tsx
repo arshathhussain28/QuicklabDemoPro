@@ -211,7 +211,7 @@ const SalesRequestForm: React.FC = () => {
 
         {step === 1 && (
           <div className="space-y-5">
-            <h3 className="font-semibold text-foreground text-lg">Demo Requirements</h3>
+            <h3 className="font-semibold text-foreground text-lg">Customer & Location</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
@@ -290,8 +290,8 @@ const SalesRequestForm: React.FC = () => {
                 <Input value={form.businessPotential} onChange={e => set('businessPotential', e.target.value)} placeholder="e.g. ₹25,00,000" />
               </div>
               <div className="space-y-2">
-                <Label>Competitor Details</Label>
-                <Input value={form.competitorDetails} onChange={e => set('competitorDetails', e.target.value)} placeholder="e.g. Sysmex XN-1000" />
+                <Label>Existing Machine Placed</Label>
+                <Input value={form.competitorDetails} onChange={e => set('competitorDetails', e.target.value)} placeholder="e.g. Roche E411" />
               </div>
               <div className="md:col-span-2 space-y-2">
                 <Label>Reason for Demo *</Label>

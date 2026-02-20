@@ -178,7 +178,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Sync data to localStorage whenever it changes (for Demo Persistence)
   React.useEffect(() => {
     if (data.salespersons.length > 0 || data.demoRequests.length > 0) {
-      localStorage.setItem('demo_data_v1', JSON.stringify(data));
+      localStorage.setItem('demo_data_v2', JSON.stringify(data));
     }
   }, [data]);
 
@@ -197,25 +197,25 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // Fetch Master Data
       const masterRes = await fetch(`${API_BASE_URL}/master-data`, { headers });
-      const masterData = await masterRes.json();
+      const masterData = masterRes.ok ? await masterRes.json() : {};
 
       // Fetch Requests
       const reqRes = await fetch(`${API_BASE_URL}/requests`, { headers });
-      const reqData = await reqRes.json();
+      const reqData = reqRes.ok ? await reqRes.json() : [];
 
       setData({
-        salespersons: masterData.salespersons || [],
-        distributors: masterData.distributors || [],
-        machines: (masterData.machines || []).map((m: any) => ({ ...m, models: m.models.map((mod: any) => mod.name) })),
-        kitParameters: masterData.kitParameters || [],
-        demoTypes: masterData.demoTypes || [],
-        demoRequests: reqData || []
+        salespersons: Array.isArray(masterData.salespersons) ? masterData.salespersons : [],
+        distributors: Array.isArray(masterData.distributors) ? masterData.distributors : [],
+        machines: Array.isArray(masterData.machines) ? (masterData.machines || []).map((m: any) => ({ ...m, models: m.models.map((mod: any) => mod.name) })) : [],
+        kitParameters: Array.isArray(masterData.kitParameters) ? masterData.kitParameters : [],
+        demoTypes: Array.isArray(masterData.demoTypes) ? masterData.demoTypes : [],
+        demoRequests: Array.isArray(reqData) ? reqData : []
       });
     } catch (e) {
       console.warn("Running in Offline/Demo Mode (Backend unreachable or Mock Token)");
 
       // Load from LocalStorage if available, else use MOCK default
-      const savedData = localStorage.getItem('demo_data_v1');
+      const savedData = localStorage.getItem('demo_data_v2');
       if (savedData) {
         setData(JSON.parse(savedData));
       } else {
