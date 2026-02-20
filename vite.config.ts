@@ -4,7 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
-  base: "/", // Standard for most hosts (Vercel, Netlify)
+  base: "", // Safe for all hosts, handles relative paths automatically
   server: {
     host: "::",
     port: 5173,
@@ -29,20 +29,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "react-router-dom"],
-          ui: [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-slot",
-            "lucide-react",
-            "clsx",
-            "tailwind-merge",
-          ],
-          pdf: ["jspdf", "html2canvas"],
-        },
-      },
-    },
+    outDir: "dist",
+    emptyOutDir: true,
   },
 }));

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <!-- TODO: Set the document title to the name of your application -->
   <title>QuickLab Demo Pro</title>
   <meta name="description" content="Enterprise Demo Request Management for Medical Instruments">
@@ -33,7 +33,32 @@
     </div>
   </div>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Diagnostic Script -->
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      var root = document.getElementById('root');
+      if (root) {
+        root.innerHTML = '<div style="padding: 20px; color: red; font-family: monospace;">' +
+          '<h1>JavaScript Error</h1>' +
+          '<p>' + msg + '</p>' +
+          '<p>URL: ' + url + ' (Line: ' + line + ')</p>' +
+          '</div>';
+      }
+      return false;
+    };
+
+    // Check if app mounts within 5 seconds
+    setTimeout(function () {
+      var root = document.getElementById('root');
+      if (root && root.innerText.indexOf('Loading') !== -1) {
+        console.warn('App failed to mount in 5 seconds. This might be a loading error.');
+        // Don't replace yet, just log for debugging
+      }
+    }, 5000);
+  </script>
+
+  <script type="module" src="src/main.tsx"></script>
 </body>
 
 </html>
