@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
+import { API_URL } from '../lib/api';
 
 
 export interface Salesperson {
@@ -173,7 +174,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const { user } = useAuth();
 
   // Helper to get API URL dynamically
-  const getApiUrl = () => import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+  const getApiUrl = () => API_URL;
 
   // Sync data to localStorage whenever it changes (for Demo Persistence)
   React.useEffect(() => {

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { API_URL } from '../lib/api';
 
 type Role = 'admin' | 'sales';
 
@@ -54,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+      const API_BASE_URL = API_URL;
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
