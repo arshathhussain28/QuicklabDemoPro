@@ -3,6 +3,7 @@ services:
     name: quicklab-demo-pro-api
     runtime: node
     rootDir: server
+    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
@@ -13,6 +14,8 @@ services:
         placeholder: "Generate a random secret here"
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: "5000"
     disk:
       name: sqlite-disk
       mountPath: /opt/render/project/src/server/prisma
