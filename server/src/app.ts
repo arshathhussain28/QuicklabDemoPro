@@ -6,7 +6,13 @@ import requestRoutes from './routes/requestRoutes';
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: '*', // For demo. Change to your Vercel URL in production for security.
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
