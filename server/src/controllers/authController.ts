@@ -6,8 +6,9 @@ import prisma from '../prisma';
 export const login = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
+        const normalizedEmail = email.toLowerCase();
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
         if (!user) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
@@ -55,6 +56,7 @@ export const getProfile = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     try {
         const { email, password, name, role, region, phone, active } = req.body;
+        const normalizedEmail = email.toLowerCase();
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Auto-increment userIndex logic
@@ -64,7 +66,7 @@ export const createUser = async (req: Request, res: Response) => {
         const nextIndex = (maxIndex._max.userIndex || 0) + 1;
 
         const user = await prisma.user.create({
-            data: { email, password: hashedPassword, name, role, region, phone, active: active !== undefined ? active : true, userIndex: nextIndex }
+            data: { email: normalizedEmail, password: hashedPassword, name, role, region, phone, active: active !== undefined ? active : true, userIndex: nextIndex }
         });
 
         res.status(201).json({ message: "User created", userId: user.id });
