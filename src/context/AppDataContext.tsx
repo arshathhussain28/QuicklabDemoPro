@@ -196,13 +196,16 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const headers = { Authorization: `Bearer ${token}` };
       const API_BASE_URL = getApiUrl();
 
-      // Fetch Master Data
-      const masterRes = await fetch(`${API_BASE_URL}/master-data`, { headers });
-      const masterData = masterRes.ok ? await masterRes.json() : {};
+      // Fetch Master Data and Requests in parallel for speed
+      const [masterRes, reqRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/master-data`, { headers }),
+        fetch(`${API_BASE_URL}/requests`, { headers })
+      ]);
 
-      // Fetch Requests
-      const reqRes = await fetch(`${API_BASE_URL}/requests`, { headers });
-      const reqData = reqRes.ok ? await reqRes.json() : [];
+      const [masterData, reqData] = await Promise.all([
+        masterRes.ok ? masterRes.json() : Promise.resolve({}),
+        reqRes.ok ? reqRes.json() : Promise.resolve([])
+      ]);
 
       setData({
         salespersons: Array.isArray(masterData.salespersons) ? masterData.salespersons : [],

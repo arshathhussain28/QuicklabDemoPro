@@ -26,7 +26,7 @@ export const useAuth = () => {
 
 // Mock credentials
 const MOCK_USERS: (User & { password: string })[] = [
-  { id: 'admin-1', name: 'Admin', email: 'admin@quicklab.com', role: 'admin', password: 'admin123' },
+  { id: 'admin-1', name: 'System Admin', email: 'admin@quicklab.com', role: 'admin', password: 'admin123' },
   { id: '1', name: 'Rahul Sharma', email: 'rahul@quicklab.com', role: 'sales', password: 'sales123' },
   { id: '2', name: 'Priya Patel', email: 'priya@quicklab.com', role: 'sales', password: 'sales123' },
   { id: '3', name: 'Amit Kumar', email: 'amit@quicklab.com', role: 'sales', password: 'sales123' },
