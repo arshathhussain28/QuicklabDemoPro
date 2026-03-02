@@ -16,15 +16,47 @@ const AdminSalespersons: React.FC = () => {
   const [form, setForm] = useState({ name: '', email: '', phone: '', region: '' });
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [processingIds, setProcessingIds] = useState<string[]>([]);
+
+  const handleToggle = async (id: string, currentStatus: boolean, name: string) => {
+    setProcessingIds(prev => [...prev, id]);
+    const success = await toggleSalespersonStatus(id, currentStatus);
+    setProcessingIds(prev => prev.filter(pId => pId !== id));
+
+    if (success) {
+      toast({ title: "Status Updated", description: `${name} is now ${currentStatus ? 'inactive' : 'active'}.` });
+    } else {
+      toast({ title: "Error", description: "Failed to update status. Please try again.", variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to completely delete ${name}? This action cannot be undone.`)) return;
+
+    setProcessingIds(prev => [...prev, id]);
+    const success = await removeSalesperson(id);
+    setProcessingIds(prev => prev.filter(pId => pId !== id));
+
+    if (success) {
+      toast({ title: "Deleted", description: `${name} has been permanently removed.` });
+    } else {
+      toast({ title: "Error", description: "Failed to delete salesperson. They may have active demo requests.", variant: "destructive" });
+    }
+  };
 
   const handleSubmit = async () => {
     if (!form.name || !form.email) return;
 
     if (isEditing && editingId) {
-      await updateSalesperson({ id: editingId, ...form, active: true });
-      toast({ title: 'Salesperson updated', description: `${form.name} has been updated.` });
+      const success = await updateSalesperson({ id: editingId, ...form, active: true } as any);
+      if (success) {
+        toast({ title: 'Salesperson updated', description: `${form.name} has been updated.` });
+      } else {
+        toast({ title: 'Error', description: 'Failed to update user details.', variant: 'destructive' });
+        return;
+      }
     } else {
-      const success = await addSalesperson({ ...form, active: true });
+      const success = await addSalesperson({ ...form, active: true } as any);
       if (success) {
         toast({ title: 'Salesperson added', description: `${form.name} has been added successfully.` });
       } else {
@@ -93,14 +125,15 @@ const AdminSalespersons: React.FC = () => {
                   </span>
                   <Switch
                     checked={sp.active}
-                    onCheckedChange={() => toggleSalespersonStatus(sp.id, sp.active)}
+                    disabled={processingIds.includes(sp.id)}
+                    onCheckedChange={() => handleToggle(sp.id, sp.active, sp.name)}
                   />
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => startEdit(sp)} className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10">
+                  <Button variant="ghost" size="icon" onClick={() => startEdit(sp)} disabled={processingIds.includes(sp.id)} className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10">
                     <Pencil className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => removeSalesperson(sp.id)} className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10">
+                  <Button variant="ghost" size="icon" onClick={() => handleDelete(sp.id, sp.name)} disabled={processingIds.includes(sp.id)} className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

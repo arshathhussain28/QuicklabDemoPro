@@ -86,15 +86,15 @@ interface AppData {
 interface AppContextType {
   data: AppData;
   addSalesperson: (s: Omit<Salesperson, 'id'>) => Promise<boolean>;
-  removeSalesperson: (id: string) => void;
-  toggleSalespersonStatus: (id: string, currentStatus: boolean) => Promise<void>;
+  removeSalesperson: (id: string) => Promise<boolean>;
+  toggleSalespersonStatus: (id: string, currentStatus: boolean) => Promise<boolean>;
   addDistributor: (d: Omit<Distributor, 'id'>) => void;
   removeDistributor: (id: string) => void;
   addMachine: (m: Omit<Machine, 'id'>) => void;
   removeMachine: (id: string) => void;
   addKitParameter: (k: Omit<KitParameter, 'id'>) => void;
   removeKitParameter: (id: string) => void;
-  updateSalesperson: (s: Salesperson) => Promise<void>;
+  updateSalesperson: (s: Salesperson) => Promise<boolean>;
   updateMachine: (m: Machine) => Promise<void>;
   updateKitParameter: (k: KitParameter) => Promise<void>;
   addDemoRequest: (r: Omit<DemoRequest, 'id' | 'createdAt' | 'status'>) => Promise<{ success: boolean, error?: string, request?: DemoRequest }>;
@@ -209,36 +209,39 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  const removeSalesperson = useCallback(async (id: string) => {
+  const removeSalesperson = useCallback(async (id: string): Promise<boolean> => {
     try {
       const res = await api.delete(`/auth/users/${id}`);
       if (res.status === 200) {
         updateLocalData('salespersons', id, false);
+        return true;
       }
+      return false;
     } catch (e) {
       console.error("Failed to remove salesperson", e);
+      return false;
     }
   }, []);
 
-  const updateSalesperson = useCallback(async (s: Salesperson) => {
+  const updateSalesperson = useCallback(async (s: Salesperson): Promise<boolean> => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${getApiUrl()}/auth/users/${s.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(s)
-      });
-      if (res.ok) {
-        const updated = await res.json();
+      const res = await api.put(`/auth/users/${s.id}`, s);
+      if (res.status === 200) {
+        const updated = res.data.user || res.data;
         setData(prev => ({
           ...prev,
-          salespersons: prev.salespersons.map(item => item.id === s.id ? { ...item, ...updated.user } : item)
+          salespersons: prev.salespersons.map(item => item.id === s.id ? { ...item, ...updated } : item)
         }));
+        return true;
       }
-    } catch (e) { console.error("Failed to update salesperson", e); }
+      return false;
+    } catch (e) {
+      console.error("Failed to update salesperson", e);
+      return false;
+    }
   }, []);
 
-  const toggleSalespersonStatus = useCallback(async (id: string, currentStatus: boolean) => {
+  const toggleSalespersonStatus = useCallback(async (id: string, currentStatus: boolean): Promise<boolean> => {
     try {
       const res = await api.put(`/auth/users/${id}/status`, { active: !currentStatus });
       if (res.status === 200) {
@@ -246,9 +249,12 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
           ...prev,
           salespersons: prev.salespersons.map(s => s.id === id ? { ...s, active: !currentStatus } : s)
         }));
+        return true;
       }
+      return false;
     } catch (e) {
       console.error("Failed to toggle salesperson status", e);
+      return false;
     }
   }, []);
 
