@@ -10,22 +10,16 @@ const LoginPage: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [slowServer, setSlowServer] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [password, setPassword] = useState(''); // Added missing password state
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    setSlowServer(false);
-
-    // Show "Waking up server" if it takes more than 2s (Render Cold Start)
-    const slowTimer = setTimeout(() => setSlowServer(true), 2000);
 
     const success = await login(email, password);
-    clearTimeout(slowTimer);
 
     if (success) {
       // Role-based routing handled by App
@@ -34,7 +28,6 @@ const LoginPage: React.FC = () => {
       setError('Invalid email or password');
     }
     setLoading(false);
-    setSlowServer(false);
   };
 
   return (
@@ -109,12 +102,6 @@ const LoginPage: React.FC = () => {
 
             {error && (
               <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">{error}</p>
-            )}
-
-            {slowServer && (
-              <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded border border-amber-100 animate-pulse">
-                Server is waking up... this may take a moment on first visit.
-              </p>
             )}
 
             <Button type="submit" className="w-full h-11 btn-glow gradient-primary text-primary-foreground" disabled={loading}>

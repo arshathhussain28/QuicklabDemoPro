@@ -114,50 +114,6 @@ const initialData: AppData = {
   demoRequests: [],
 };
 
-const MOCK_APP_DATA: AppData = {
-  salespersons: [
-    { id: '1', name: 'Rahul Sharma', email: 'rahul@quicklab.com', phone: '9876543210', region: 'North', active: true },
-    { id: '2', name: 'Priya Patel', email: 'priya@quicklab.com', phone: '9876543211', region: 'West', active: true },
-    { id: '3', name: 'Amit Kumar', email: 'amit@quicklab.com', phone: '9876543212', region: 'South', active: false },
-  ],
-  distributors: [
-    { id: 'd1', name: 'MedSupply India', location: 'Mumbai', contactPerson: 'Vikram Mehta', phone: '+91 22 4567 8901' },
-    { id: 'd2', name: 'Delhi Diagnostics', location: 'Delhi', contactPerson: 'Suresh Gupta', phone: '+91 11 2345 6789' },
-  ],
-  machines: [
-    { id: 'm1', name: 'Hematology Analyzer', category: 'Diagnostics', models: ['HA-3000', 'HA-5000'] },
-    { id: 'm2', name: 'Biochemistry Analyzer', category: 'Diagnostics', models: ['BA-200', 'BA-400'] },
-  ],
-  kitParameters: [
-    { id: 'k1', name: 'CBC Panel', category: 'Hematology', machineId: 'm1' },
-    { id: 'k2', name: 'Lipid Profile', category: 'Biochemistry', machineId: 'm2' },
-  ],
-  demoTypes: ['Product Evaluation', 'Pre-Purchase Demo', 'Conference Demo', 'Training Demo'],
-  demoRequests: [
-    {
-      id: 'r1', readableId: '100001', salespersonId: '1', status: 'pending', createdAt: new Date().toISOString(),
-      distributorId: 'd1', machineId: 'm1', model: 'HA-5000', demoType: 'Product Evaluation',
-      proposedDate: '2026-03-01', expectedDuration: '1 week', applicationParams: ['CBC'],
-      sampleVolume: '50/day', specialRequirements: 'None', businessPotential: 'High',
-      competitorDetails: 'Mindray', reasonForDemo: 'Evaluation', urgencyLevel: 'Medium',
-      regionalManagerApproval: true, regionalManagerName: 'Rajesh Singh', approvalDate: '2026-02-15',
-      expectedReturnDate: '2026-03-08', dispatchedBy: '', dispatchDate: '', courierDetails: '', trackingNumber: '',
-      kitItems: JSON.stringify([{ kitId: 'k1', quantity: 2, unit: 'Box' }]),
-      location: 'Mumbai City Hospital', conditionOnReturn: '', remarks: ''
-    },
-    {
-      id: 'r2', readableId: '100002', salespersonId: '2', status: 'approved', createdAt: new Date(Date.now() - 86400000).toISOString(),
-      distributorId: 'd2', machineId: 'm2', model: 'BA-200', demoType: 'Pre-Purchase Demo',
-      proposedDate: '2026-03-05', expectedDuration: '3 days', applicationParams: ['Lipid'],
-      sampleVolume: '20/day', specialRequirements: 'None', businessPotential: 'Medium',
-      competitorDetails: 'Erba', reasonForDemo: 'Urgent Requirement', urgencyLevel: 'High',
-      regionalManagerApproval: true, regionalManagerName: 'Rajesh Singh', approvalDate: '2026-02-18',
-      expectedReturnDate: '2026-03-08', dispatchedBy: '', dispatchDate: '', courierDetails: '', trackingNumber: '',
-      kitItems: JSON.stringify([{ kitId: 'k2', quantity: 1, unit: 'Pack' }]),
-      location: 'Apollo Delhi', conditionOnReturn: '', remarks: ''
-    }
-  ]
-};
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -176,12 +132,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Helper to get API URL dynamically
   const getApiUrl = () => API_URL;
 
-  // Sync data to localStorage whenever it changes (for Demo Persistence)
-  React.useEffect(() => {
-    if (data.salespersons.length > 0 || data.demoRequests.length > 0) {
-      localStorage.setItem('demo_data_v2', JSON.stringify(data));
-    }
-  }, [data]);
+
 
   const fetchData = useCallback(async () => {
     try {
@@ -216,15 +167,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         demoRequests: Array.isArray(reqData) ? reqData : []
       });
     } catch (e) {
-      console.warn("Running in Offline/Demo Mode (Backend unreachable or Mock Token)");
-
-      // Load from LocalStorage if available, else use MOCK default
-      const savedData = localStorage.getItem('demo_data_v2');
-      if (savedData) {
-        setData(JSON.parse(savedData));
-      } else {
-        setData(MOCK_APP_DATA);
-      }
+      console.warn("Error fetching data, backend might be unreachable", e);
+      // Wait to retry or show error boundary, but DO NOT load mock data.
     }
   }, [user]);
 
@@ -260,11 +204,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       return false;
     } catch (e) {
-      // Offline Falback
-      console.log("Offline Add Salesperson");
-      const newSalesperson = { ...s, id: uid(), active: true, role: 'sales' };
-      updateLocalData('salespersons', newSalesperson, true);
-      return true;
+      console.error("Failed to add Salesperson", e);
+      return false;
     }
   }, []);
 
@@ -331,8 +272,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const newDistributor = await res.json();
       if (res.ok) updateLocalData('distributors', newDistributor, true);
     } catch (e) {
-      console.log("Offline Add Distributor");
-      updateLocalData('distributors', { ...d, id: uid() }, true);
+      console.error("Failed to add Distributor", e);
     }
   }, []);
 
@@ -370,8 +310,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         updateLocalData('machines', transformedMachine, true);
       }
     } catch (e) {
-      console.log("Offline Add Machine");
-      updateLocalData('machines', { ...m, id: uid() }, true);
+      console.error("Failed to add Machine", e);
     }
   }, []);
 
@@ -479,10 +418,8 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
       updateLocalData('demoRequests', newRequest, true);
       return { success: true, request: newRequest };
     } catch (e) {
-      console.log("Offline Add Request");
-      const newRequest = { ...r, id: uid(), createdAt: new Date().toISOString(), status: 'pending' as const, readableId: Math.floor(100000 + Math.random() * 900000).toString() };
-      updateLocalData('demoRequests', newRequest, true);
-      return { success: true, request: newRequest as DemoRequest };
+      console.error("Failed to add Demo Request", e);
+      return { success: false, error: "Network error" };
     }
   }, []);
 
@@ -505,11 +442,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }));
       }
     } catch (e) {
-      console.log("Offline Update Request");
-      setData(prev => ({
-        ...prev,
-        demoRequests: prev.demoRequests.map(r => r.id === id ? { ...r, ...updates } : r)
-      }));
+      console.error("Failed to update request", e);
     }
   }, []);
 

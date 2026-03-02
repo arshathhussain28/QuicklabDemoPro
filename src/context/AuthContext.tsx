@@ -24,15 +24,6 @@ export const useAuth = () => {
   return ctx;
 };
 
-// Mock credentials
-const MOCK_USERS: (User & { password: string })[] = [
-  { id: 'admin-1', name: 'System Admin', email: 'admin@quicklab.com', role: 'admin', password: 'admin123' },
-  { id: '1', name: 'Rahul Sharma', email: 'rahul@quicklab.com', role: 'sales', password: 'sales123' },
-  { id: '2', name: 'Priya Patel', email: 'priya@quicklab.com', role: 'sales', password: 'sales123' },
-  { id: '3', name: 'Amit Kumar', email: 'amit@quicklab.com', role: 'sales', password: 'sales123' },
-  { id: '4', name: 'Arshath', email: 'arshath@quicklab.com', role: 'sales', password: 'arshath123' },
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,16 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return false;
     } catch (e) {
       console.error("Login failed or API not reachable", e);
-      // Fallback for Demo/Preview if API is down
-      const mockUser = MOCK_USERS.find(u => u.email === email && u.password === password);
-      if (mockUser) {
-        console.warn("Using MOCK credentials because API is unreachable.");
-        const { password, ...userWithoutPass } = mockUser;
-        localStorage.setItem('token', 'mock-token-' + Date.now());
-        localStorage.setItem('user', JSON.stringify(userWithoutPass));
-        setUser(userWithoutPass);
-        return true;
-      }
       return false;
     }
   };
