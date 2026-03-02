@@ -7,7 +7,7 @@ const router = express.Router();
 router.post('/login', login);
 router.get('/profile', authenticate, getProfile);
 router.post('/register', authenticate, requireRole('admin'), createUser); // Only admin can register new users
-router.patch('/users/:id/status', authenticate, requireRole('admin'), updateUserStatus);
+router.put('/users/:id/status', authenticate, requireRole('admin'), updateUserStatus);
 router.put('/users/:id', authenticate, requireRole('admin'), updateUser);
 router.delete('/users/:id', authenticate, requireRole('admin'), deleteUser);
 

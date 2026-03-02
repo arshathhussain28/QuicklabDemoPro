@@ -2,6 +2,10 @@ import { createRoot } from "react-dom/client";
 import { Component, ErrorInfo, ReactNode } from "react";
 import App from "./App.tsx";
 import "./index.css";
+import api from "./lib/api";
+
+// Trigger Render Backend Warmup early
+api.get('/health').catch(() => console.log('Warmup initiated'));
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
     constructor(props: { children: ReactNode }) {

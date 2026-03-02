@@ -19,13 +19,13 @@ const LoginPage: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const success = await login(email, password);
+    const result = await login(email, password);
 
-    if (success) {
+    if (result.success) {
       // Role-based routing handled by App
       navigate('/');
     } else {
-      setError('Invalid email or password');
+      setError(result.error || 'Invalid email or password');
     }
     setLoading(false);
   };

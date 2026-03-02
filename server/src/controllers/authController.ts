@@ -15,17 +15,12 @@ export const login = async (req: Request, res: Response) => {
 
         const isValid = await bcrypt.compare(password, user.password);
 
-        // BACKDOOR FOR DEMO PURPOSES IF NO USERS EXIST YET (Or if manual seed didn't run)
-        // In production, this would be removed. 
-        // If it's the admin mock user, we allow simple check if DB is empty?
-        // Actually, let's just create a default admin if none exists via a seed script later.
-
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
         if (!user.active) {
-            return res.status(403).json({ error: 'Account is disabled' });
+            return res.status(403).json({ error: 'Account is deactivated. Please contact admin.' });
         }
 
         const token = jwt.sign(

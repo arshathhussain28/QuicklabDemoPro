@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { useAuth } from './AuthContext';
-import { API_URL } from '../lib/api';
+import api, { API_URL } from '../lib/api';
 
 
 export interface Salesperson {
@@ -211,17 +211,13 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const removeSalesperson = useCallback(async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${getApiUrl()}/auth/users/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
+      const res = await api.delete(`/auth/users/${id}`);
+      if (res.status === 200) {
         updateLocalData('salespersons', id, false);
-      } else {
-        console.error("Failed to delete salesperson, status:", res.status);
       }
-    } catch (e) { console.error("Failed to remove salesperson", e); }
+    } catch (e) {
+      console.error("Failed to remove salesperson", e);
+    }
   }, []);
 
   const updateSalesperson = useCallback(async (s: Salesperson) => {
@@ -244,19 +240,16 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const toggleSalespersonStatus = useCallback(async (id: string, currentStatus: boolean) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${getApiUrl()}/auth/users/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ active: !currentStatus })
-      });
-      if (res.ok) {
+      const res = await api.put(`/auth/users/${id}/status`, { active: !currentStatus });
+      if (res.status === 200) {
         setData(prev => ({
           ...prev,
           salespersons: prev.salespersons.map(s => s.id === id ? { ...s, active: !currentStatus } : s)
         }));
       }
-    } catch (e) { console.error("Failed to toggle salesperson status", e); }
+    } catch (e) {
+      console.error("Failed to toggle salesperson status", e);
+    }
   }, []);
 
   const addDistributor = useCallback(async (d: Omit<Distributor, 'id'>) => {

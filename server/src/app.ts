@@ -7,8 +7,11 @@ import requestRoutes from './routes/requestRoutes';
 const app = express();
 
 const corsOptions = {
-    origin: '*', // For demo. Change to your Vercel URL in production for security.
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+    origin: [
+        'https://quicklab-demo-pro.vercel.app',
+        'http://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 };
 

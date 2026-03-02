@@ -15,6 +15,23 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+// Global Response Interceptor for 403 (Account Deactivated mid-session)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 403) {
+            // Prevent redirect loop if the failure was naturally during login
+            if (!error.config.url.includes('/auth/login')) {
+                console.warn('Access denied or account deactivated. Logging out.');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const auth = {
     login: (email: string, password: string) => api.post('/auth/login', { email, password }),
     getProfile: () => api.get('/auth/profile'),
