@@ -24,11 +24,9 @@ const STYLES = {
 // Layout Components
 const Section: React.FC<{ title: string; children: React.ReactNode; fullWidth?: boolean }> = ({ title, children, fullWidth }) => (
   <div className={`break-inside-avoid mb-4 ${fullWidth ? 'col-span-2' : ''}`}>
-    {/* Replaced Dot with Border Left for perfect alignment */}
-    {/* Fixed Green Line Alignment */}
-    <div className="flex items-center mb-2 border-b border-slate-200 pb-2">
-      <div className="green-bar-print w-1 h-3 mr-2 rounded-sm" style={{ backgroundColor: STYLES.secondary }}></div>
-      <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-800 leading-none">
+    <div className="flex items-center mb-2 border-b border-slate-200 pb-2" style={{ lineHeight: 'normal' }}>
+      <div className="green-bar-print w-1 h-3 mr-2 rounded-sm" style={{ backgroundColor: STYLES.secondary, margin: 0, padding: 0, transform: 'none', top: 0 }}></div>
+      <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-800 leading-none" style={{ margin: 0, padding: 0 }}>
         {title}
       </h3>
     </div>
@@ -159,22 +157,34 @@ const SalesPreviewPdf: React.FC = () => {
         useCORS: true,
         logging: false,
         width: 794,
-        windowWidth: 1024,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
         onclone: (clonedDoc) => {
           const clonedElement = clonedDoc.getElementById('pdf-content');
           if (clonedElement) {
             // Force Desktop Styles
             clonedElement.style.padding = '35px';
             clonedElement.style.width = '794px';
-            // Let height be auto to capture full content
+            // Let height be auto to capture full content cleanly
             clonedElement.style.height = 'auto';
 
-            // Fix Green Bar Dimensions
+            // Strip transform scales affecting text misalignment during canvas drawing
+            clonedElement.style.transform = 'none';
+
+            // Ensure baseline flex boxes render properly natively without padding hacks
+            const sections = clonedElement.querySelectorAll('.flex.items-center');
+            sections.forEach((sec: any) => {
+              sec.style.alignItems = 'center';
+            });
+
+            // Revert green bar heights without arbitrary marginTop
             const greenBars = clonedElement.querySelectorAll('.green-bar-print');
             greenBars.forEach((bar: any) => {
               bar.style.height = '12px';
               bar.style.setProperty('height', '12px', 'important');
-              bar.style.marginTop = '2px';
+              bar.style.marginTop = '0';
             });
           }
         }
@@ -242,13 +252,32 @@ const SalesPreviewPdf: React.FC = () => {
       {/* Print-specific Styles */}
       <style>{`
         @media print {
-          .no-print { display: none !important; }
-          body { 
+          html, body { 
             background: white !important; 
             margin: 0 !important;
             padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
-          .min-h-screen { background: white !important; min-height: 0 !important; padding: 0 !important; }
+          .no-print { display: none !important; }
+          .min-h-screen { 
+            background: white !important; 
+            min-height: 0 !important; 
+            padding: 0 !important; 
+            overflow: visible !important; 
+          }
+          
+          /* Specialized Print Container Wrapper to eliminate scrollbars */
+          #print-container {
+             overflow: visible !important;
+             height: auto !important;
+             max-height: none !important;
+          }
+
+          ::-webkit-scrollbar {
+            display: none !important;
+          }
+
           .flex.justify-center { padding: 0 !important; display: block !important; }
           
           /* Force the preview to be full size and readable */
@@ -261,25 +290,40 @@ const SalesPreviewPdf: React.FC = () => {
             box-shadow: none !important;
             border: none !important;
             min-height: 0 !important;
+            overflow: visible !important;
           }
 
           #pdf-content {
             padding: 40px !important;
             width: 100% !important;
             height: auto !important;
-            min-height: 297mm !important; /* A4 Height */
+            min-height: 0 !important;
+            overflow: visible !important;
           }
 
-          @page {
-            size: A4;
-            margin: 0;
+          /* General Reset for typography baselines and alignment */
+          * {
+            line-height: normal !important;
           }
 
-          /* Ensure green bars appear in print */
+          .flex.items-center {
+            display: flex !important;
+            align-items: center !important;
+          }
+
           .green-bar-print {
+            display: inline-flex !important;
+            align-items: center !important;
+            vertical-align: middle !important;
+            margin: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             background-color: ${STYLES.secondary} !important;
+          }
+          
+          @page {
+             size: A4;
+             margin: 0;
           }
         }
       `}</style>
@@ -303,7 +347,7 @@ const SalesPreviewPdf: React.FC = () => {
       </div>
 
       {/* PDF Viewport Area */}
-      <div className="flex justify-center w-full p-0 md:p-8 bg-gray-100/50 min-h-[calc(100vh-60px)]">
+      <div id="print-container" className="flex justify-center w-full p-0 md:p-8 bg-gray-100/50 min-h-[calc(100vh-60px)]">
 
         {/* Responsive Container Wrapper */}
         <div
