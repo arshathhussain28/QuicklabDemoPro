@@ -3,32 +3,24 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppData } from '@/context/AppDataContext';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Printer, MessageCircle, FileText, ArrowLeft, Download } from 'lucide-react';
+import { Printer, MessageCircle, ArrowLeft, Download } from 'lucide-react';
 import type { DemoRequest } from '@/context/AppDataContext';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { useToast } from '@/hooks/use-toast';
 
 // Branding & Style Constants
-// Branding & Style Constants
 const STYLES = {
-  primary: '#1d4ed8',   // Royal Blue (QuickLab Blue) - HSL 215 90% 35% converted
-  secondary: '#16a34a', // Vibrant Green (QuickLab Green) - HSL 145 80% 35% converted
-  textHeader: '#0f172a',// Slate 900
-  label: '#64748b',     // Slate 500
-  text: '#334155',      // Slate 700
-  border: '#e2e8f0',    // Slate 200
-  accentBg: '#eff6ff',  // Blue 50
+  primary: '#1d4ed8',   // Royal Blue (QuickLab Blue)
+  secondary: '#16a34a', // Vibrant Green (QuickLab Green)
 };
 
 // Layout Components
 const Section: React.FC<{ title: string; children: React.ReactNode; fullWidth?: boolean }> = ({ title, children, fullWidth }) => (
   <div className={`break-inside-avoid mb-4 ${fullWidth ? 'col-span-2' : ''}`}>
-    <div className="flex items-center mb-2 border-b border-slate-200 pb-2" style={{ lineHeight: 'normal' }}>
-      <div className="green-bar-print w-1 h-3 mr-2 rounded-sm" style={{ backgroundColor: STYLES.secondary, margin: 0, padding: 0, transform: 'none', top: 0 }}></div>
-      <h3 className="text-[11px] font-bold uppercase tracking-wider text-slate-800 leading-none" style={{ margin: 0, padding: 0 }}>
-        {title}
-      </h3>
+    <div className="section-title">
+      <div className="indicator" style={{ backgroundColor: STYLES.secondary }}></div>
+      <h3 className="section-title-text">{title}</h3>
     </div>
     <div className={`px-1 ${fullWidth ? '' : 'grid grid-cols-1 gap-y-1'}`}>
       {children}
@@ -50,7 +42,7 @@ const Field: React.FC<{ label: string; value?: string | number | null; className
 const SalesPreviewPdf: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Get ID from URL
+  const { id } = useParams<{ id: string }>();
   const { data } = useAppData();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -60,14 +52,11 @@ const SalesPreviewPdf: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Try to get from State (Navigation)
     if (location.state?.request) {
       setRequest(location.state.request);
       setLoading(false);
       return;
     }
-
-    // 2. Try to get from URL ID (Refresh/Direct Link)
     if (id) {
       const found = data.demoRequests.find(r => r.id === id);
       if (found) {
@@ -78,34 +67,19 @@ const SalesPreviewPdf: React.FC = () => {
   }, [id, location.state, data.demoRequests]);
 
   const [scale, setScale] = useState(1);
-  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateScale = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const mobile = window.innerWidth < 820;
-        setIsMobile(mobile);
-        // Target width is 794px (A4 at 96 DPI approx)
-        // If container is smaller, scale down.
-        // If container is larger (desktop), we can either cap it or scale up.
-        // Usually, we want to cap it at 100% (scale 1) on desktop, but fill width on mobile.
-
         const newScale = containerWidth < 820 ? containerWidth / 794 : 1;
         setScale(newScale);
       }
     };
-
-    // Initial calc
     updateScale();
-
-    // Use ResizeObserver for robust updates
     const observer = new ResizeObserver(updateScale);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
+    if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -117,40 +91,26 @@ const SalesPreviewPdf: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading request details...</div>;
-  }
-
-  if (!request) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8 bg-white rounded shadow">
-          <p className="text-slate-500 mb-4">No request data found.</p>
-          <Button onClick={handleBack}>Go Back</Button>
-        </div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading request details...</div>;
+  if (!request) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center p-8 bg-white rounded shadow">
+        <p className="text-slate-500 mb-4">No request data found.</p>
+        <Button onClick={handleBack}>Go Back</Button>
       </div>
-    );
-  }
+    </div>
+  );
 
   const sp = data.salespersons.find(s => s.id === request.salespersonId);
   const dist = data.distributors.find(d => d.id === request.distributorId);
   const machine = data.machines.find(m => m.id === request.machineId);
 
   const generatePDF = async () => {
-    const element = pdfRef.current;
+    const element = document.getElementById("pdf-print-container");
     if (!element) return null;
 
     try {
       toast({ title: "Generating PDF...", description: "Formatting document..." });
-
-      // Remove shadow for clean capture
-      element.classList.remove('shadow-2xl');
-      element.style.margin = '0';
-
-      // Temporarily reset transform for capture? 
-      // html2canvas helps, but sometimes transform interacts poorly.
-      // We are capturing the INNER element which has no transform, so it should be fine.
-      // But we need to ensure it is visible.
 
       const canvas = await html2canvas(element, {
         scale: 2,
@@ -160,64 +120,28 @@ const SalesPreviewPdf: React.FC = () => {
         windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,
         scrollX: 0,
-        scrollY: 0,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.getElementById('pdf-content');
-          if (clonedElement) {
-            // Force Desktop Styles
-            clonedElement.style.padding = '35px';
-            clonedElement.style.width = '794px';
-            // Let height be auto to capture full content cleanly
-            clonedElement.style.height = 'auto';
-
-            // Strip transform scales affecting text misalignment during canvas drawing
-            clonedElement.style.transform = 'none';
-
-            // Ensure baseline flex boxes render properly natively without padding hacks
-            const sections = clonedElement.querySelectorAll('.flex.items-center');
-            sections.forEach((sec: any) => {
-              sec.style.alignItems = 'center';
-            });
-
-            // Revert green bar heights without arbitrary marginTop
-            const greenBars = clonedElement.querySelectorAll('.green-bar-print');
-            greenBars.forEach((bar: any) => {
-              bar.style.height = '12px';
-              bar.style.setProperty('height', '12px', 'important');
-              bar.style.marginTop = '0';
-            });
-          }
-        }
+        scrollY: 0
       });
-
-      // Restore styles
-      element.classList.add('shadow-2xl');
-      element.style.margin = 'auto';
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();   // 210mm
-      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297mm
-
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       let heightLeft = imgHeight;
       let position = 0;
 
-      // First Page
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
 
-      // Add extra pages if content overflows
       while (heightLeft > 0) {
-        position = heightLeft - imgHeight; // position goes negative to show lower part of image
+        position = heightLeft - imgHeight;
         pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
-
       return pdf;
     } catch (err) {
       console.error("PDF Generation failed", err);
@@ -248,88 +172,86 @@ const SalesPreviewPdf: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-12">
-      {/* Print-specific Styles */}
+    <div className="min-h-screen bg-gray-100 pb-12 print-bg-reset">
       <style>{`
+        /* Core Print Isolation */
         @media print {
-          html, body { 
-            background: white !important; 
-            margin: 0 !important;
-            padding: 0 !important;
-            height: auto !important;
-            overflow: visible !important;
-          }
-          .no-print { display: none !important; }
-          .min-h-screen { 
-            background: white !important; 
-            min-height: 0 !important; 
-            padding: 0 !important; 
-            overflow: visible !important; 
-          }
-          
-          /* Specialized Print Container Wrapper to eliminate scrollbars */
-          #print-container {
-             overflow: visible !important;
-             height: auto !important;
-             max-height: none !important;
-          }
-
-          ::-webkit-scrollbar {
+          button,
+          .pdf-screen-controls {
             display: none !important;
           }
-
-          .flex.justify-center { padding: 0 !important; display: block !important; }
           
-          /* Force the preview to be full size and readable */
-          .print-content-root {
-            transform: none !important;
-            width: 100% !important;
-            max-width: none !important;
-            margin: 0 !important;
+          body, html {
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+          
+          .print-bg-reset {
+            background: white !important;
             padding: 0 !important;
-            box-shadow: none !important;
-            border: none !important;
             min-height: 0 !important;
-            overflow: visible !important;
           }
 
-          #pdf-content {
-            padding: 40px !important;
-            width: 100% !important;
-            height: auto !important;
-            min-height: 0 !important;
-            overflow: visible !important;
+          /* Force fixed A4 dimensions */
+          #pdf-print-container {
+            width: 210mm;
+            margin: 0 auto;
           }
 
-          /* General Reset for typography baselines and alignment */
-          * {
-            line-height: normal !important;
+          .pdf-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            box-sizing: border-box;
           }
 
-          .flex.items-center {
-            display: flex !important;
-            align-items: center !important;
-          }
-
-          .green-bar-print {
-            display: inline-flex !important;
-            align-items: center !important;
-            vertical-align: middle !important;
-            margin: 0 !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-            background-color: ${STYLES.secondary} !important;
-          }
-          
           @page {
-             size: A4;
-             margin: 0;
+            size: A4;
+            margin: 0;
           }
+        }
+
+        /* Standardized Screen & Print Typography */
+        .pdf-page {
+          line-height: 1.4;
+          color: #334155;
+          background-color: #ffffff;
+          box-sizing: border-box;
+        }
+
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+          padding-bottom: 4px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title .indicator {
+          width: 4px;
+          height: 16px;
+          flex-shrink: 0;
+          border-radius: 2px;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+
+        .section-title-text {
+          font-size: 11px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #1e293b;
+          margin: 0;
+          padding: 0;
+          line-height: 1.2;
         }
       `}</style>
 
-      {/* Top Navigation Bar */}
-      <div className="bg-white border-b sticky top-0 z-20 no-print px-4 py-3 flex items-center justify-between shadow-sm">
+      {/* Top Navigation Bar - Explicitly Marked as pdf-screen-controls */}
+      <div className="pdf-screen-controls bg-white border-b sticky top-0 z-20 px-4 py-3 flex items-center justify-between shadow-sm">
         <Button variant="ghost" size="sm" onClick={handleBack} className="text-muted-foreground hover:text-primary">
           <ArrowLeft className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Back</span>
         </Button>
@@ -346,42 +268,19 @@ const SalesPreviewPdf: React.FC = () => {
         </div>
       </div>
 
-      {/* PDF Viewport Area */}
-      <div id="print-container" className="flex justify-center w-full p-0 md:p-8 bg-gray-100/50 min-h-[calc(100vh-60px)]">
+      {/* Wrapper to center content gracefully strictly for viewing layout */}
+      <div className="flex justify-center w-full p-0 md:p-8" ref={containerRef}>
 
-        {/* Responsive Container Wrapper */}
+        {/* Transform applied purely based on screen size; does not infect structural bounds in pure DOM styling */}
         <div
-          ref={containerRef}
-          className="relative w-full md:w-auto"
-          style={{
-            height: scale < 1 ? `${1123 * scale}px` : 'auto', // Reserve exact height
-            maxWidth: '794px' // Cap max width on desktop
-          }}
+          className="relative transition-transform duration-300 ease-in-out origin-top-left md:origin-top"
+          style={{ transform: `scale(${scale})` }}
         >
-          {/* Scaled Content */}
-          <div
-            className={`origin-top-left transition-transform duration-300 ease-in-out bg-white shadow-2xl print-content-root ${scale < 1 ? '' : 'mx-auto'}`}
-            style={{
-              width: '794px',
-              minHeight: '1123px', // Changed to minHeight to prevent cutoff in preview
-              transform: `scale(${scale})`,
-              // On desktop (scale 1), we let flex center it. On mobile, we force left origin to fit width.
-              transformOrigin: 'top left',
-              marginBottom: '0'
-            }}
-          >
-            {/* The Actual PDF Content */}
-            <div
-              ref={pdfRef}
-              id="pdf-content"
-              className="flex flex-col h-full w-full"
-              style={{
-                padding: isMobile ? '20px' : '35px',
-                boxSizing: 'border-box',
-                color: '#334155',
-                backgroundColor: '#ffffff'
-              }}
-            >
+          {/* Print container locks to A4 format internally preventing layout shift */}
+          <div ref={pdfRef} id="pdf-print-container" className="bg-white shadow-2xl mx-auto" style={{ width: '794px', minHeight: '1123px' }}>
+
+            <div className="pdf-page flex flex-col h-full w-full" style={{ padding: '20mm', boxSizing: 'border-box' }}>
+
               {/* Header */}
               <div className="flex justify-between items-start border-b-2 border-slate-100 pb-4 mb-6">
                 <div className="flex flex-col">
@@ -405,8 +304,6 @@ const SalesPreviewPdf: React.FC = () => {
 
               {/* Grid Content */}
               <div className="grid grid-cols-2 gap-x-6 md:gap-x-12 gap-y-4 items-start">
-
-                {/* Left Column */}
                 <div className="flex flex-col">
                   <Section title="Sales Representative">
                     <Field label="Name" value={sp?.name} />
@@ -431,7 +328,6 @@ const SalesPreviewPdf: React.FC = () => {
                   </Section>
                 </div>
 
-                {/* Right Column */}
                 <div className="flex flex-col">
                   <Section title="Instrument Configuration">
                     <Field label="Instrument" value={machine?.name} />
@@ -467,7 +363,7 @@ const SalesPreviewPdf: React.FC = () => {
               {/* Kits Section */}
               <div className="mt-2 text-sm">
                 <Section title="Requested Kits & Consumables" fullWidth>
-                  {(() => { // Robust Kit Parsing
+                  {(() => {
                     const kits = (() => {
                       try {
                         if (!request.kitItems) return [];
@@ -475,12 +371,10 @@ const SalesPreviewPdf: React.FC = () => {
                         if (typeof request.kitItems === 'string') return JSON.parse(request.kitItems);
                         return [];
                       } catch (e) {
-                        console.error("Failed to parse kitItems", e);
                         return [];
                       }
                     })();
 
-                    // Fallback for empty kits
                     if (!kits || kits.length === 0) return <p className="text-xs text-slate-400 italic">No kits requested.</p>;
 
                     return (
@@ -503,12 +397,12 @@ const SalesPreviewPdf: React.FC = () => {
                 </Section>
               </div>
 
-              {/* Logistics Section - Adaptive (Moves up if space allows) */}
+              {/* Logistics Section */}
               <div className="mt-4">
                 <div className="bg-slate-50 p-4 rounded border border-slate-100">
                   <div className="flex items-center mb-3 pb-2 border-b border-slate-200">
                     <div className="w-1 h-3 mr-2 rounded-sm bg-slate-400"></div>
-                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-600 leading-none">Logistics & Dispatch</h3>
+                    <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-600 leading-none m-0">Logistics & Dispatch</h3>
                   </div>
                   <div className="grid grid-cols-4 gap-4">
                     <Field label="Dispatched By" value={request.dispatchedBy} />
@@ -524,7 +418,7 @@ const SalesPreviewPdf: React.FC = () => {
                 </div>
               </div>
 
-              {/* Signature - Pushed to bottom of page */}
+              {/* Signature */}
               <div className="mt-auto pt-8 border-t border-slate-100 flex justify-between items-end">
                 <div className="text-[9px] text-slate-400">
                   <p className="font-bold text-slate-600">QuickLab Asia Pvt Ltd</p>
