@@ -184,12 +184,19 @@ const SalesPreviewPdf: React.FC = () => {
             margin: 0;
             padding: 0;
             overflow: hidden !important;
+            height: auto !important;
           }
           
-          .print-bg-reset {
+          .print-bg-reset,
+          .min-h-screen,
+          .h-screen,
+          .overflow-auto,
+          .overflow-scroll {
             background: white !important;
             padding: 0 !important;
             min-height: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
 
           #pdf-print-container {
