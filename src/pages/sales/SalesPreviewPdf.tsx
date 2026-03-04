@@ -115,12 +115,10 @@ const SalesPreviewPdf: React.FC = () => {
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
-        logging: false,
-        width: 794,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
         scrollX: 0,
-        scrollY: 0
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
       });
 
       const imgData = canvas.toDataURL('image/png');
@@ -185,6 +183,7 @@ const SalesPreviewPdf: React.FC = () => {
             margin: 0;
             padding: 0;
             background: white;
+            overflow: hidden !important;
           }
           
           .print-bg-reset {
@@ -197,6 +196,7 @@ const SalesPreviewPdf: React.FC = () => {
           #pdf-print-container {
             width: 210mm;
             margin: 0 auto;
+            overflow: hidden !important;
           }
 
           .pdf-page {
@@ -204,6 +204,7 @@ const SalesPreviewPdf: React.FC = () => {
             min-height: 297mm;
             padding: 20mm;
             box-sizing: border-box;
+            overflow: hidden !important;
           }
 
           @page {
@@ -213,7 +214,16 @@ const SalesPreviewPdf: React.FC = () => {
         }
 
         /* Standardized Screen & Print Typography */
+        #pdf-print-container {
+          width: 210mm;
+          margin: 0 auto;
+          overflow: hidden;
+        }
+
         .pdf-page {
+          width: 210mm;
+          min-height: 297mm;
+          overflow: hidden;
           line-height: 1.4;
           color: #334155;
           background-color: #ffffff;
