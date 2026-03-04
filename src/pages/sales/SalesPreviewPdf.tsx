@@ -115,6 +115,7 @@ const SalesPreviewPdf: React.FC = () => {
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
+        logging: false,
         scrollX: 0,
         scrollY: 0,
         windowWidth: element.scrollWidth,
@@ -170,7 +171,7 @@ const SalesPreviewPdf: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-12 print-bg-reset">
+    <div className="min-h-screen bg-gray-100 pb-12 print-bg-reset overflow-visible">
       <style>{`
         /* Core Print Isolation */
         @media print {
@@ -182,7 +183,6 @@ const SalesPreviewPdf: React.FC = () => {
           body, html {
             margin: 0;
             padding: 0;
-            background: white;
             overflow: hidden !important;
           }
           
@@ -192,11 +192,11 @@ const SalesPreviewPdf: React.FC = () => {
             min-height: 0 !important;
           }
 
-          /* Force fixed A4 dimensions */
           #pdf-print-container {
             width: 210mm;
+            height: 297mm;
             margin: 0 auto;
-            overflow: hidden !important;
+            overflow: hidden;
           }
 
           .pdf-page {
@@ -216,18 +216,20 @@ const SalesPreviewPdf: React.FC = () => {
         /* Standardized Screen & Print Typography */
         #pdf-print-container {
           width: 210mm;
+          height: 297mm;
           margin: 0 auto;
           overflow: hidden;
         }
 
         .pdf-page {
           width: 210mm;
-          min-height: 297mm;
+          height: 297mm;
+          padding: 20mm;
+          box-sizing: border-box;
           overflow: hidden;
           line-height: 1.4;
           color: #334155;
           background-color: #ffffff;
-          box-sizing: border-box;
         }
 
         .section-title {
@@ -279,7 +281,7 @@ const SalesPreviewPdf: React.FC = () => {
       </div>
 
       {/* Wrapper to center content gracefully strictly for viewing layout */}
-      <div className="flex justify-center w-full p-0 md:p-8" ref={containerRef}>
+      <div className="flex justify-center w-full p-0 md:p-8 overflow-visible" ref={containerRef}>
 
         {/* Transform applied purely based on screen size; does not infect structural bounds in pure DOM styling */}
         <div
@@ -287,7 +289,7 @@ const SalesPreviewPdf: React.FC = () => {
           style={{ transform: `scale(${scale})` }}
         >
           {/* Print container locks to A4 format internally preventing layout shift */}
-          <div ref={pdfRef} id="pdf-print-container" className="bg-white shadow-2xl mx-auto" style={{ width: '794px', minHeight: '1123px' }}>
+          <div ref={pdfRef} id="pdf-print-container" className="bg-white shadow-2xl mx-auto" style={{ width: '794px', height: '1123px' }}>
 
             <div className="pdf-page flex flex-col h-full w-full" style={{ padding: '20mm', boxSizing: 'border-box' }}>
 
